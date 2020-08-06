@@ -9,6 +9,11 @@ import json
 import pymysql
 
 
+remote_db_endpoint = 'sba-proj-2.cua1jo4mglzx.us-east-2.rds.amazonaws.com'
+remote_db_port = '3306'
+remote_db_user = 'admin'
+remote_db_pwd = 'ZXecee*8aU-'
+remote_db_name ='sba-schema'
 
 pymysql.install_as_MySQLdb()
 
@@ -140,9 +145,43 @@ def barchartrace():
 
     data_df = pd.read_sql(query, con=conn)
     data_json = data_df.to_json(orient='records')
+
+
+    dictList = data_json
+
+    names = []
+    for dic in dictList:
+        print(dic)
+        names.append(dic['ApprovalFiscalYear'])
+
+    # unique list of names
+    names = list(set(names))
+
+
+    results = []
+
+    for name in names:
+        idx = 0
+        ids = {}
+        props = {}
+        names = []
+        for dic in dictList:
+            dic_name = dic['ApprovalFiscalYear']
+            if dic_name == name:
+                props[str(idx)] = dic['dataSet']
+                idx += 1
+        result_dict = {"date": name,
+                    "dataSet": props}     
+
+        results.append(result_dict)
+
+    # result = json.dumps(result)  to convert back into double quotes ""  
+    # results
+
+
     conn.close()
 
-    return data_json
+    return json.dumps(results)
 
 
 

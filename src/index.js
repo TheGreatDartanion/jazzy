@@ -2,11 +2,18 @@ d3.json('data.json').then(data => {
 
 console.log(data);
 
-var data_json = _.mapValues(_.groupBy(data, 'ApprovalFiscalYear'),
-records => records.map(record => _.omit(record, 'ApprovalFiscalYear')));
+outJSON = data;
 
+var groupBy = function(xs, key) {
+  return xs.reduce(function(rv, x) {
+    (rv[x[key]] = rv[x[key]] || []).push(x);
+    return rv;
+  }, {});
+};
+var groubedByTeam=groupBy(outJSON, 'team')
+console.log(groubedByTeam);
 
-console.log(data_json);
+//console.log(data_json);
 
 
   const brands = [
