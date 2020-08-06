@@ -1,4 +1,4 @@
-import { timeFormat } from "d3";
+//import { timeFormat } from "d3";
 
 const brands = [
   "Apple",
