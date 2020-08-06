@@ -10,7 +10,7 @@ var groupBy = function(xs, key) {
     return rv;
   }, {});
 };
-var groubedByTeam=groupBy(outJSON, 'team')
+var groubedByTeam=groupBy(outJSON, 'ApprovalFiscalYear')
 console.log(groubedByTeam);
 
 //console.log(data_json);
