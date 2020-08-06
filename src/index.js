@@ -13,7 +13,9 @@ const brands = [
 
 export function generateDataSets({ size = 1 }) {
   const dataSets = [];
-  const currentYear = +timeFormat("%Y")(new Date());
+  //const currentYear = +timeFormat("%Y")(new Date());
+  const currentYear = (new Date()).getFullYear();
+
   const maxLimitForValue = 2000;
   const minLimitForValue = 200;
 
