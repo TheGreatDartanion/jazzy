@@ -16,7 +16,7 @@ console.log(groubedByTeam);
 var objs = []
 
 
-for (i = 0; i < groubedByTeam.length; i++){
+for (i = 0; i < Object.entries(groubedByTeam).length; i++){
     console.log(i);
 
     var obj = {'date': Object.keys(groubedByTeam[i]), 'dataSet': Object.values(groubedByTeam[i])};
