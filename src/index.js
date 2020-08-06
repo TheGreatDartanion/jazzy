@@ -12,6 +12,9 @@ const brands = [
 ];
 
 export function generateDataSets({ size = 1 }) {
+  
+  console.log('entering generateDataSets');
+
   const dataSets = [];
   //const currentYear = +timeFormat("%Y")(new Date());
   const currentYear = (new Date()).getFullYear();
@@ -31,6 +34,7 @@ export function generateDataSets({ size = 1 }) {
     });
   }
 
+  console.log(dataSets);
   return dataSets;
 }
 
@@ -38,6 +42,9 @@ export function generateDataSets({ size = 1 }) {
 //import * as d3 from "d3";
 
 export function BarChartRace(chartId, extendedSettings) {
+
+  console.log('entering BArChartRace');
+
   const chartSettings = {
     width: 500,
     height: 400,
@@ -83,24 +90,35 @@ export function BarChartRace(chartId, extendedSettings) {
     );
 
   function draw({ dataSet, date: currentDate }, transition) {
+    console.log('draw');
+
+
     // we will implement this function
 
     return this;
   }
 
   function addDataset(dataSet) {
+
+    console.log('add dataset');
+
     chartDataSets.push(dataSet);
 
     return this;
   }
 
   function addDatasets(dataSets) {
+    console.log('add datasets');
+
     chartDataSets.push.apply(chartDataSets, dataSets);
 
     return this;
   }
 
   function setTitle(title) {
+
+    console.log('set title');
+
     d3.select(".chart-title")
       .attr("x", chartSettings.width / 2)
       .attr("y", -chartSettings.padding / 2)
@@ -110,7 +128,15 @@ export function BarChartRace(chartId, extendedSettings) {
   }
 
   function render() {
+
+    console.log('render');
+
+
     // we will implement this function
+
+
+
+
     return this;
   }
 
