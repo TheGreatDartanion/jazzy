@@ -42,6 +42,8 @@ function generateDataSets({ size = 1 }) {
     });
   }
 
+  console.log(dataSets);
+
   return dataSets;
 }
 
