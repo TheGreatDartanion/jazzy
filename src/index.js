@@ -18,7 +18,7 @@ const brands = [
   "Lenovo"
 ];
 
-export function generateDataSets({ size = 1 }) {
+function generateDataSets({ size = 1 }) {
   const dataSets = [];
   const currentYear = (new Date()).getFullYear();
   const maxLimitForValue = 2000;
@@ -49,7 +49,7 @@ export function generateDataSets({ size = 1 }) {
 
 
 
-export function BarChartRace(chartId, extendedSettings) {
+function BarChartRace(chartId, extendedSettings) {
   const chartSettings = {
     width: 500,
     height: 400,
