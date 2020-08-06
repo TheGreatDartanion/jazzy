@@ -13,12 +13,14 @@ var groupBy = function(xs, key) {
 var groubedByTeam=groupBy(outJSON, 'ApprovalFiscalYear')
 console.log(groubedByTeam);
 
-objs = []
+var objs = []
 
 
 for (i = 0; i < groubedByTeam.length; i++){
+    console.log(i);
 
-    obj = {'date': Object.keys(groubedByTeam[i]), 'dataSet': Object.values(groubedByTeam[i])};
+    var obj = {'date': Object.keys(groubedByTeam[i]), 'dataSet': Object.values(groubedByTeam[i])};
+    console.log(obj);
     objs.push(obj)
 }
 
