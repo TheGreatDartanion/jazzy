@@ -1,4 +1,4 @@
-d3.json('data_json.json').then(data => {
+d3.json('data.json').then(data => {
 
 console.log(data);
 
