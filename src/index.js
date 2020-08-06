@@ -1,6 +1,5 @@
-//import { timeFormat } from "d3";
-
 const brands = [
+  "Alcatel",
   "Apple",
   "Google",
   "Huawei",
@@ -8,43 +7,49 @@ const brands = [
   "Motorola",
   "Nokia",
   "Razer",
-  "Samsung"
+  "Samsung",
+  "Xiaomi",
+  "HTC",
+  "Sony",
+  "BlackBerry",
+  "Palm",
+  "ZTE",
+  "Oppo",
+  "Lenovo"
 ];
 
 export function generateDataSets({ size = 1 }) {
-  
-  console.log('entering generateDataSets');
-
   const dataSets = [];
-  //const currentYear = +timeFormat("%Y")(new Date());
   const currentYear = (new Date()).getFullYear();
-
   const maxLimitForValue = 2000;
   const minLimitForValue = 200;
+  const maximumModelCount = 10;
 
   for (let i = 0; i < size; i++) {
     dataSets.push({
       date: currentYear - (size - (i + 1)),
-      dataSet: brands.map(brand => ({
-        name: brand,
-        value:
-          Math.random() * (maxLimitForValue - minLimitForValue) +
-          minLimitForValue
-      }))
+      dataSet: brands
+        .sort(function() {
+          return Math.random() - 0.5;
+        })
+        .slice(0, maximumModelCount)
+        .map(brand => ({
+          name: brand,
+          value:
+            Math.random() * (maxLimitForValue - minLimitForValue) +
+            minLimitForValue
+        }))
     });
   }
 
-  console.log(dataSets);
   return dataSets;
 }
 
 
-//import * as d3 from "d3";
+
+
 
 export function BarChartRace(chartId, extendedSettings) {
-
-  console.log('entering BArChartRace');
-
   const chartSettings = {
     width: 500,
     height: 400,
@@ -61,6 +66,9 @@ export function BarChartRace(chartId, extendedSettings) {
 
   const chartDataSets = [];
   let chartTransition;
+  let timerStart, timerEnd;
+  let currentDataSetIndex = 0;
+  let elapsedTime = chartSettings.duration;
 
   const chartContainer = d3.select(`#${chartId} .chart-container`);
   const xAxisContainer = d3.select(`#${chartId} .x-axis`);
@@ -90,35 +98,148 @@ export function BarChartRace(chartId, extendedSettings) {
     );
 
   function draw({ dataSet, date: currentDate }, transition) {
-    console.log('draw');
+    const { innerHeight, ticksInXAxis, titlePadding } = chartSettings;
+    const dataSetDescendingOrder = dataSet.sort(
+      ({ value: firstValue }, { value: secondValue }) =>
+        secondValue - firstValue
+    );
 
+    chartContainer.select(".current-date").text(currentDate);
 
-    // we will implement this function
+    xAxisScale.domain([0, dataSetDescendingOrder[0].value]);
+    yAxisScale.domain(dataSetDescendingOrder.map(({ name }) => name));
+
+    xAxisContainer.transition(transition).call(
+      d3
+        .axisTop(xAxisScale)
+        .ticks(ticksInXAxis)
+        .tickSize(-innerHeight)
+    );
+
+    yAxisContainer
+      .transition(transition)
+      .call(d3.axisLeft(yAxisScale).tickSize(0));
+
+    // The general update Pattern in d3.js
+
+    // Data Binding
+    const barGroups = chartContainer
+      .select(".columns")
+      .selectAll("g.column-container")
+      .data(dataSetDescendingOrder, ({ name }) => name);
+
+    // Enter selection
+    const barGroupsEnter = barGroups
+      .enter()
+      .append("g")
+      .attr("class", "column-container")
+      .attr("transform", `translate(0,${innerHeight})`);
+
+    barGroupsEnter
+      .append("rect")
+      .attr("class", "column-rect")
+      .attr("width", 0)
+      .attr("height", yAxisScale.step() * (1 - chartSettings.columnPadding));
+
+    barGroupsEnter
+      .append("text")
+      .attr("class", "column-title")
+      .attr("y", (yAxisScale.step() * (1 - chartSettings.columnPadding)) / 2)
+      .attr("x", -titlePadding)
+      .text(({ name }) => name);
+
+    barGroupsEnter
+      .append("text")
+      .attr("class", "column-value")
+      .attr("y", (yAxisScale.step() * (1 - chartSettings.columnPadding)) / 2)
+      .attr("x", titlePadding)
+      .text(0);
+
+    // Update selection
+    const barUpdate = barGroupsEnter.merge(barGroups);
+
+    barUpdate
+      .transition(transition)
+      .attr("transform", ({ name }) => `translate(0,${yAxisScale(name)})`)
+      .attr("fill", "normal");
+
+    barUpdate
+      .select(".column-rect")
+      .transition(transition)
+      .attr("width", ({ value }) => xAxisScale(value));
+
+    barUpdate
+      .select(".column-title")
+      .transition(transition)
+      .attr("x", ({ value }) => xAxisScale(value) - titlePadding);
+
+    barUpdate
+      .select(".column-value")
+      .transition(transition)
+      .attr("x", ({ value }) => xAxisScale(value) + titlePadding)
+      .tween("text", function({ value }) {
+        const interpolateStartValue =
+          elapsedTime === chartSettings.duration
+            ? this.currentValue || 0
+            : +this.innerHTML;
+
+        const interpolate = d3.interpolate(interpolateStartValue, value);
+        this.currentValue = value;
+
+        return function(t) {
+          d3.select(this).text(Math.ceil(interpolate(t)));
+        };
+      });
+
+    // Exit selection
+    const bodyExit = barGroups.exit();
+
+    bodyExit
+      .transition(transition)
+      .attr("transform", `translate(0,${innerHeight})`)
+      .on("end", function() {
+        d3.select(this).attr("fill", "none");
+      });
+
+    bodyExit
+      .select(".column-title")
+      .transition(transition)
+      .attr("x", 0);
+
+    bodyExit
+      .select(".column-rect")
+      .transition(transition)
+      .attr("width", 0);
+
+    bodyExit
+      .select(".column-value")
+      .transition(transition)
+      .attr("x", titlePadding)
+      .tween("text", function() {
+        const interpolate = d3.interpolate(this.currentValue, 0);
+        this.currentValue = 0;
+
+        return function(t) {
+          d3.select(this).text(Math.ceil(interpolate(t)));
+        };
+      });
 
     return this;
   }
 
   function addDataset(dataSet) {
-
-    console.log('add dataset');
-
     chartDataSets.push(dataSet);
 
     return this;
   }
 
   function addDatasets(dataSets) {
-    console.log('add datasets');
-
     chartDataSets.push.apply(chartDataSets, dataSets);
 
     return this;
   }
 
   function setTitle(title) {
-
-    console.log('set title');
-
     d3.select(".chart-title")
       .attr("x", chartSettings.width / 2)
       .attr("y", -chartSettings.padding / 2)
@@ -127,15 +248,58 @@ export function BarChartRace(chartId, extendedSettings) {
     return this;
   }
 
-  function render() {
+  /* async function render() {
+    for (const chartDataSet of chartDataSets) {
+      chartTransition = chartContainer
+        .transition()
+        .duration(chartSettings.duration)
+        .ease(d3.easeLinear);
 
-    console.log('render');
+      draw(chartDataSet, chartTransition);
 
+      await chartTransition.end();
+    }
+  } */
 
-    // we will implement this function
+  async function render(index = 0) {
+    currentDataSetIndex = index;
+    timerStart = d3.now();
 
+    chartTransition = chartContainer
+      .transition()
+      .duration(elapsedTime)
+      .ease(d3.easeLinear)
+      .on("end", () => {
+        if (index < chartDataSets.length) {
+          elapsedTime = chartSettings.duration;
+          render(index + 1);
+        } else {
+          d3.select("button").text("Play");
+        }
+      })
+      .on("interrupt", () => {
+        timerEnd = d3.now();
+      });
 
+    if (index < chartDataSets.length) {
+      draw(chartDataSets[index], chartTransition);
+    }
 
+    return this;
+  }
+
+  function stop() {
+    d3.select(`#${chartId}`)
+      .selectAll("*")
+      .interrupt();
+
+    return this;
+  }
+
+  function start() {
+    elapsedTime -= timerEnd - timerStart;
+
+    render(currentDataSetIndex);
 
     return this;
   }
@@ -144,11 +308,16 @@ export function BarChartRace(chartId, extendedSettings) {
     addDataset,
     addDatasets,
     render,
-    setTitle
+    setTitle,
+    start,
+    stop
   };
 }
 
+//import { generateDataSets } from "./dataGenerator";
+//import { BarChartRace } from "./BarChartRace";
 
+// import { select as d3Select } from "d3";
 
 const myChart = new BarChartRace("bar-chart-race");
 
@@ -156,3 +325,16 @@ myChart
   .setTitle("Bar Chart Race Title")
   .addDatasets(generateDataSets({ size: 5 }))
   .render();
+
+d3.select("button").on("click", function() {
+  if (this.innerHTML === "Stop") {
+    this.innerHTML = "Resume";
+    myChart.stop();
+  } else if (this.innerHTML === "Resume") {
+    this.innerHTML = "Stop";
+    myChart.start();
+  } else {
+    this.innerHTML = "Stop";
+    myChart.render();
+  }
+});
