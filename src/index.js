@@ -1,6 +1,5 @@
-import "./styles.css";
-import { generateDataSets } from "./dataGenerator";
-import { BarChartRace } from "./BarChartRace";
+import { generateDataSets } from "./dataGenerator.js";
+import { BarChartRace } from "./BarChartRace.js";
 
 const myChart = new BarChartRace("bar-chart-race");
 
