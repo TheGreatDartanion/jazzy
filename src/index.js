@@ -14,7 +14,7 @@ var groubedByTeam=groupBy(outJSON, 'ApprovalFiscalYear')
 console.log(groubedByTeam);
 
 
-var keys_len = Object.keys(groubedByTeam).length;
+var keys_len = Object.keys(JSON.parse(groubedByTeam)).length;
 var objs = [];
 
 
