@@ -13,15 +13,21 @@ var groupBy = function(xs, key) {
 var groubedByTeam=groupBy(outJSON, 'ApprovalFiscalYear')
 console.log(groubedByTeam);
 
+keys = Object.keys(groubedByTeam);
+values = Object.values(groubedByTeam);
 
-var keys_len = Object.keys(JSON.parse(groubedByTeam)).length;
+len_keys = keys.length;
+
+console.log(len_keys);
+
 var objs = [];
 
 
-for (i = 0; i < keys_len; i++){
+for (i = 0; i < 5; i++){
     console.log(i);
 
-    var obj = {'date': Object.keys(groubedByTeam[i]), 'dataSet': Object.values(groubedByTeam[i])};
+    var obj = {'date': keys[i], 'dataSet': values[i].slice(0,10)}; //not long term; sort and slice long term
+    
     console.log(obj);
     objs.push(obj)
 }
